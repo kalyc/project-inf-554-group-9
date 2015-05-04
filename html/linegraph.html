@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <title>Speed vs time</title>
+        <script src="d3.min.js"></script>
+        <style>
+    	.axis line, 
+        .axis path {
+            fill: none;
+            stroke: #000;
+        }
+        
+        
+    </style>
+    </head>
+    <body>
+        <svg id="viz" width="600" height="500"></svg>
+        <script>
+        
+        var formatCount = d3.format(",.0f"),
+    formatTime = d3.time.format("%H:%M"),
+    formatMinutes = function(d) { return formatTime(new Date(2012, 0, 0, 0, d)); };
+    
+              var xs = d3.time.scale().range([50, 480]).domain([9 * 60,17 * 60])//.domain([new Date(88,09,12,13,14,00), new Date(88,09,12,16,14,00)]),
+				  xAxis = d3.svg.axis()
+				  .scale(xs)
+				  //.tickFormat(d3.format("d"))
+				  .tickFormat(formatMinutes)
+				  //.tickValues(["09:00","10:00", "11:00", "12:00"]),
+				  //.ticks(d3.time.hours, 1)
+				  ,
+				  ys = d3.scale.linear().range([330, 20]).domain([10, 100]),
+				  yAxis = d3.svg.axis()
+				  .scale(ys)
+				  .orient("left");
+
+			 var vis = d3.select("#viz");
+			 vis.append("svg:text").attr({
+				  'x': (10),
+				  'y': (10)
+			 }).text('Speed').style('font-size', 'small').style('fill', 'black');
+			 vis.append("svg:text").attr({
+				  'x': (495),
+				  'y': (340)
+			 }).text('Time').style('font-size', 'small').style('fill', 'black');
+
+			 function DrawGraph(data, country, lineColor, xOff, yOff) {
+
+				  vis.append("svg:g")
+						.attr("class", "x axis")
+						.attr("transform", "translate(0," + (330) + ")")
+						.call(xAxis);
+
+				  vis.append("svg:g")
+						.attr("class", "y axis")
+						.attr("transform", "translate(" + (50) + ",0)")
+						.call(yAxis);
+				  var xval = 0,
+						yval = 0;
+				  var lineGen = d3.svg.line()
+						.x(function(d) {
+						    xval = xs(parseInt(d.time) * 60);
+						    return xval;
+						})
+						.y(function(d) {
+						    yval = ys(d.speed);
+						    return yval;
+						}) .interpolate("basis");
+
+				  vis.append('svg:path')
+						.attr('d', lineGen(data))
+						.attr('stroke', lineColor)
+						.attr('stroke-width', 2)
+						.attr('fill', 'none');
+
+			 }
+
+			 d3.json('params4.json', function(error, json) {
+				  if (error)
+						return console.warn(error);
+					
+				  DrawGraph(json["1201941"]["01"]["06"], 'India', 'blue', 10, 10);
+				  DrawGraph(json["1201941"]["01"]["10"], 'Iraq', 'green', 10, 10);
+				  DrawGraph(json["1201941"]["01"]["12"], 'Malaysia', 'orange', 10, 10);
+			 });
+            </script>
+    </body>
+</html>

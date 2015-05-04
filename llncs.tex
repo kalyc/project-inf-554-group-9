@@ -1,0 +1,60 @@
+\documentclass{llncs}
+\usepackage{paralist}
+\usepackage{enumerate}
+%\usepackage{graphicx}
+%
+\begin{document}
+
+
+\title{Los Angeles Traffic Visualizationr}
+
+\author{Kalyanee Chendke, Abhinand Kadavigere Ravikumar}
+
+\institute{University of Southern California, Los Angeles, CA, United States- 90007}
+\maketitle
+
+\begin{abstract}
+
+This paper summarizes the work that was done in order to produce a traffic visualization of Los Angeles county. We were motivated to work on this topic as traffic congestion is a major problem in Los Angeles. Moreover, the dataset that we obtained was very detailed and could be used to identify trends in the traffic flow. This paper lists the different visualizations that were used to show these trends and also the possible uses of those to city planners and people so that they can plan their journeys better. 
+
+\end{abstract}
+
+\section{Introduction}\label{sec:Introduction}
+
+The project is a web-based visualization to show the Los Angeles traffic data that was obtained in the months from January to March 2014.  It is interactive and is based on design principle of Cairo's wheel. The visualization is highly figurative . It is multi-dimensional and so it can drill down on different areas to give detailed and a high level preview of the data. It is also functional.  
+
+
+\section{Dataset}\label{sec:Others}
+
+The dataset that was used to make the project was around 35 GB. It was obtained using highway loophole detectors on 44 different highways around the Los Angeles area. The data was obtained from the period of January to March 2014. The data was obtained on all unique sensor IDs.
+
+The datasets contained the following information:
+
+\begin{enumerate}
+\item Link Id: Sensor ID
+\item Config Id: Configuration ID
+\item Volume: Count of cars in time period of 1 minute
+\item Speed: Average speed of cars in time period of 1 minute
+\item Hov Speed: Not used
+\item Link Status: Ok if sensor is working fine
+\end{enumerate}
+
+
+ For the purpose of visualization in this project, sensors whose link\_status was not OK or if the sensor had failed then their readings were ignored. 
+
+\section{Conclusion}\label{sec:Conclusion}
+
+Conclusions are here.
+
+\section*{Acknowledgments}\label{sec:Acknowledgments}
+
+Authors would like to thank Professor Luciano Nocera for his guidance.
+
+\begin{thebibliography}{1}
+
+\bibitem{Einstein}
+A. Einstein, On the movement of small particles suspended in stationary liquids required by the molecular-kinetic theory of heat, Annalen der Physik 17, pp. 549-560, 1905.
+
+\end{thebibliography}
+
+\end{document}

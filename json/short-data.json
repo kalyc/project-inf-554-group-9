@@ -1,0 +1,343 @@
+{"type":
+ "FeatureCollection",
+    "features": [
+       
+        {
+            "type": "Feature",
+            "properties": {
+            
+                "ID": 716958,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.26501,
+                    34.11167
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716956,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.25544,
+                    34.106579
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716955,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.24427,
+                    34.095792
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716953,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.24279,
+                    34.094577
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716951,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.23182,
+                    34.08581
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716949,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.22975,
+                    34.08406
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716946,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.22313,
+                    34.081399
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716944,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.21934,
+                    34.0728
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716943,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.21492,
+                    34.05987
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716942,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.21451,
+                    34.059301
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716941,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.21436,
+                    34.057673
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716940,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.21458,
+                    34.047682
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716939,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.21724,
+                    34.043014
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716938,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.21712,
+                    34.028898
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716907,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.05937,
+                    33.900699
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716906,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.06224,
+                    33.902649
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716904,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.04833,
+                    33.894742
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716902,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.04418,
+                    33.892351
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716901,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.03633,
+                    33.888096
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716900,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.03366,
+                    33.886797
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716899,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.0276,
+                    33.883515
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716898,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.02641,
+                    33.882713
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716896,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.02124,
+                    33.880076
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "ID": 716895,
+                "Highway": "I-5"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -118.12026,
+                    33.964333
+                ]
+            }
+        }
+    ]
+}

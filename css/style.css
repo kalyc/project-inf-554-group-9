@@ -1,0 +1,50 @@
+@import url('../js/leaflet/leaflet.css');
+
+body
+{
+	font-family:"Trebuchet MS", Helvetica, sans-serif, serif;
+	
+}
+
+div.legend
+{
+	background-color:#CCCCCC;
+	border-radius: 25px;
+	
+}
+
+.axis line, 
+.axis path {
+	fill: none;
+	stroke: #000;
+}
+
+#map
+{
+	width: 57%; 
+	height: 730px; 
+	float:left;
+}
+
+#lineGraph
+{
+	margin-left:1em;
+	
+	float:left;
+	width:40%;
+	height:430px;		
+	border-width:1px;
+	border-style:solid;
+	padding-top:5px;
+	border-radius: 15px;
+	background-color:#FAFAFF;
+}
+
+#textDiv
+{
+	font-size:0.8em;
+	margin-left:1em;
+	margin-bottom:0.5em;
+	float:left;
+	width:38%;
+}

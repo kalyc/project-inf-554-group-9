@@ -1,0 +1,56 @@
+% This file was created with JabRef 2.10.
+% Encoding: Cp1252
+
+
+@Electronic{d3website,
+  Title                    = {d3.js},
+  Author                   = {MIke Bostock},
+  Url                      = {http://d3js.org/}
+}
+
+@Book{Cairo2012,
+  Title                    = {The Functional Art: An Introduction to Information Graphics and Visualization},
+  Author                   = {Alberto Cairo},
+  Publisher                = {New Riders},
+  Year                     = {2012}
+}
+
+@Electronic{leafletwebsite,
+  Title                    = {Leaflet},
+  Author                   = {Leaflet},
+  Url                      = {http://leafletjs.com/},
+
+  Owner                    = {Abhinand},
+  Timestamp                = {2015.05.02}
+}
+
+@Standard{MichaelBostock2011,
+  Title                    = {D3: Data-Driven Documents},
+  Institution              = {Stanford University},
+  Author                   = {Michael Bostock, Vadim Ogievetsky and Jeffrey Heer},
+  Year                     = {2011},
+
+  Owner                    = {Abhinand},
+  Timestamp                = {2015.05.02}
+}
+
+@Book{Murray2013,
+  Title                    = {Interactive Data Visualization for the Web},
+  Author                   = {Scott Murray},
+  Publisher                = {O'Reilly Media},
+  Year                     = {2013}
+}
+
+@Book{Ware2008,
+  Title                    = {Visual Thinking for Design},
+  Author                   = {Colin Ware},
+  Publisher                = {Morgan Kaufmann},
+  Year                     = {2008}
+}
+
+@Electronic{inductionloopwiki,
+  Title                    = {Induction Loop},
+  Author                   = {Wikipedia},
+  Url                      = {http://goo.gl/a0bkhh}
+}
+

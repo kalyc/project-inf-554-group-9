@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Los Angeles County Traffic Map</title>
+    <meta charset="utf-8" />
+    <script src="../js/leaflet/leaflet.js"></script>
+    <script src="../js/d3.min.js"></script>
+    <script src="http://sashakavun.github.io/leaflet-canvasicon/leaflet-canvasicon.js"></script>
+    <script type="text/javascript" src="../js/leaflet-piechart.js"></script>
+    <link rel="stylesheet" type="text/css" href="../css/style.css"/>
+    <h1 style="text-align:center;">Los Angeles County Traffic Map</h1>
+</head>
+
+<body>
+    Select highway
+    <select id="selectHighway"></select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select month
+    <select id="selectMonth"></select>&nbsp;&nbsp;&nbsp;&nbsp;
+    <input type="button" id="btnPopulateMap" value="Search" />
+
+   
+    <br />
+	<br />
+	<div style="width: 100%;">
+		<div id="map"></div>
+		<div id="textDiv">
+		This map shows the visualization of traffic in Los Angeles Country during the period of Jan-Mar 2014. 
+		
+		<br />
+		<br />
+		
+		Each sensor on the selected highway is represented by a circle. These sensors are highway loop-detectors which can detect information about passing vehicles. Parameters such as speed, volume (number of vehicles), occupancy (percentage of time the sensor is occupied) are averaged over 30s. Higher the circle's diameter, higher the volume. Blue represents low speed, and red represents high. 
+		
+		<br />
+		<br />
+		Please select a highway and a month at the upper left side and hit Search. Hovering over a sensor will show the occupancy pie chart for the freeway, and the volume and speed  per sensor as mentioned above. You may change the layers clicking the layer option at the top right. Clicking at the center of each sensor updates the line graph at the bottom (Please zoom into a sensor and click at the center after the pop-up stabilizes). This graph shows the variation of speed on the first Monday and Friday of every month, from around 10 AM to 5 PM (depending on availability of data). If the speed is unavailable at the above time/dates, the graph is not shown.
+		</div>
+		
+		<div id="lineGraph">
+		<svg id="viz" width="100%" height="100%"></svg>
+		</div>
+		<div id="pieDiv">		
+		</div>
+		<div id="copyrightDiv" style="text-align:center;">
+			<p>&copy;<a href="mailto:kadavige@usc.edu">Abhinand K Ravikumar</a>|<a href="mailto:chendke@usc.edu">Kalyanee Chendke</a></p>
+		</div>
+	</div>
+    </script>
+    <script>
+		var lineJson = null;
+		d3.json('../json/params5.json', function(error, json) {
+			if (error)
+			{
+				alert(error);
+				return console.warn(error);
+			}
+			lineJson = json;
+		});
+		
+		var jsonRead = null;
+		d3.json("../json/sensor_data2.json", function(error, json) {
+			if (error) 
+			{			
+				alert(error);
+				return console.warn(error);;
+			}
+			jsonRead = json;
+		});
+		
+		latPoint = 34.0946;
+		longPoint = -118.2428;
+		var map = L.map('map', {
+			center: [latPoint, longPoint],
+			zoom: 9
+			
+		});
+		
+		var formatCount = d3.format(",.0f"),
+			formatTime = d3.time.format("%H:%M"),
+			formatMinutes = function(d) {
+				return formatTime(new Date(2012, 0, 0, 0, d));
+			};
+			
+		var xs = d3.time.scale().range([50, 480]).domain([9 * 60, 17 * 60]),
+			xAxis = d3.svg.axis().scale(xs).tickFormat(formatMinutes),
+			ys = d3.scale.linear().range([330, 20]).domain([10, 100]),
+			yAxis = d3.svg.axis().scale(ys).orient("left");
+		
+		
+		
+		var openCycleMap = L.tileLayer('http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png');
+		var cloudMade = L.tileLayer('http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png');
+		var mapQuest = L.tileLayer('http://otile{s}.mqcdn.com/tiles/1.0.0/{type}/{z}/{x}/{y}.png');
+		var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+		{
+			attribution: 'OpenStreetMap'
+		});
+		var toolserver = L.tileLayer('http://{s}.www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png',
+		{
+			attribution: 'toolserver'
+		});
+		var stamen = L.tileLayer('http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png', {
+			attribution: 'stamen'
+		});
+		
+		var baseLayers = {
+						  //"OpenCycleMap": openCycleMap, 
+						  //"CloudMade": cloudMade, 
+						  //"MapQuest": mapQuest,
+						  "OpenStreetMap": osm, 
+						  "stamen": stamen, 
+						  "toolserver-mapnik":toolserver
+						};
+		L.control.layers(baseLayers).addTo(map);
+		osm.addTo(map);
+
+		highways = ["5", "10", "15", "22", "39", "55", "57", "60", "71", "73", "74", "91", "133", "142", "210", "215",
+			"241", "259", "261", "405", "605", "I-10", "I-105", "I-110", "I-210", "I-405", "I-5", "I-605", "I-710", "SR-101",
+			"SR-118", "SR-126", "SR-134", "SR-14", "SR-170", "SR-2", "SR-23", "SR-33", "SR-47", "SR-57", "SR-60", "SR-71",
+			"SR-90", "SR-91"
+		];
+
+		months = ['01', '02', '03'];
+
+		var selectHighway = d3.select('#selectHighway');
+		optionsHighway = selectHighway.selectAll('option').data(highways);
+		optionsHighway.enter().append("option").text(function(d) {
+			return d;
+		});
+
+		var selectMonth = d3.select('#selectMonth');
+		optionsMonth = selectMonth.selectAll('option').data(months);
+		optionsMonth.enter().append("option").text(function(d) {
+			return d;
+		});
+
+		var btnPopulateMap = d3.select('#btnPopulateMap').on('click', populateMap);
+
+		var circles = null;
+		var markers = null;
+		var pieChart = null;
+		var speedRange = d3.scale
+			.linear()
+			.domain([0, 15])
+			.range([10, 500]);
+
+		//colors = ['red','blue'];
+		//colors = ["#1f77b4", "#ff7f0e"];	// blue, orange
+		colors = ['#0A67A3', '#FF4F00'];
+		var colorScale = d3.scale
+			.ordinal()
+			.domain([30, 80])
+			.range(colors);
+		var occupancyScale = d3.scale.linear().domain([0, 10]).range([8, 100])
+		var occ1;
+		var data_to_visualize = [];
+
+
+		var myIcon = L.icon({
+			iconUrl: 'img/black1.png',
+			iconSize: [35, 35],
+			iconAnchor: [1, 30],
+			popupAnchor: [17, -18],
+
+		});
+	
+		var arcs, pie, arc;
+		//{'font-size':'small', 'fill': 'black', 'font-family':'serif'}
+		var vis = d3.select("#viz");
+		vis.append("svg:text").attr({
+			'x': (10),
+			'y': (10)
+		}).text('Speed (mph)').style('font-size', 'small').style('fill', 'black');
+		vis.append("svg:text").attr({
+			'x': (495),
+			'y': (340)
+		}).text('Time').style('font-size', 'small').style('fill', 'black');
+		vis.append("svg:text").attr({
+			'x': (200),
+			'y': (390)
+		}).text('Speed vs. Time of Day').style('font-size', 'medium').style('fill', 'black');
+		vis.append('svg:circle')
+		.attr({'r':5, 'cx':40, 'cy':400, 'fill':'brown'});
+		vis.append("svg:text").attr({
+			'x': (50),
+			'y': (405)
+		}).text('First Monday').style('font-size', 'small').style('fill', 'black');
+		vis.append('svg:circle')
+		.attr({'r':5, 'cx':40, 'cy':420, 'fill':'green'});
+		vis.append("svg:text").attr({
+			'x': (50),
+			'y': (425)
+		}).text('First Friday').style('font-size', 'small').style('fill', 'black');
+		
+		
+		var legend = L.control({
+			position: 'topright'
+
+		});
+
+		legend.onAdd = function(map) {
+
+			var div = L.DomUtil.create('div', 'legend'),
+				labels = ['Legend'];
+
+			// loop through our density intervals and generate a label with a colored square for each interval
+			
+
+			div.innerHTML += '<p>' + 
+							"<svg width='130' height='155'>" + 
+							'<text x="5" y="12" font-weight="normal" font-size="15px" >LEGEND</text>' + 
+							'<text font-weight="normal" font-size="15px" x="30" y="25" >High Speed </text>' + 
+							' <circle cx="20" cy="36" r="7" fill="#0A67A3" />' + 
+							'<circle cx="20" cy="20" r="7" fill=  "#FF4F00" />' + 
+							'<circle cx="20" cy="72" r="5" fill=  "none"  stroke="black"/>' + 
+							'<text font-weight="normal" font-size="15px" x="31" y="40" >Low Speed</text>' + 
+							'<text font-weight="normal" font-size="15px" x="30" y="73" >Low Volume</text>' + 
+							'<circle cx="20" cy="56" r="8" fill=  "none"  stroke="black"/>' + 
+							'<text x="29" y="60" font-weight="normal" font-size="15px" >High Volume</text>' + 
+							'<text x="10" y="100" font-weight="normal" font-size="13px" >Freeway Occupancy</text>' + 
+							'<text x="10" y="112" font-weight="normal" font-size="13px" >(in marker popup)</text>'  +
+							'<circle cx="20" cy="125" r="7" fill="#E86850" stroke="black"/>' + 
+							'<circle cx="20" cy="144" r="7" fill="#aba4a4" stroke="black"/>' + 
+							'<text x="29" y="128" font-weight="normal" font-size="15px" >Available</text>' + 
+							'<text x="29" y="146" font-weight="normal" font-size="15px" >Occupied</text>' + 
+							"</svg>" +
+							'</p> ';
+
+			return div;
+		};
+
+		legend.addTo(map);
+
+		map.on("viewreset", mouseDrag);
+		map.on("drag", mouseDrag);
+
+		var scaleLat = d3.scale.linear();
+		var scaleLng = d3.scale.linear();
+				
+		
+		vis.append("svg:g")
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + (330) + ")")
+				.call(xAxis);
+
+			vis.append("svg:g")
+				.attr("class", "y axis")
+				.attr("transform", "translate(" + (50) + ",0)")
+				.call(yAxis);
+			vis.append('svg:g').attr('id', 'lineGroup');
+		function DrawGraph(data, lineColor, sensorID) {
+
+			
+			var xval = 0,
+				yval = 0;
+			var lineGen = d3.svg.line()
+				.x(function(d) {
+					xval = xs(parseInt(d.time) * 60);
+					return xval;
+				})
+				.y(function(d) {
+					yval = ys(d.speed);
+					return yval;
+				}).interpolate("basis");
+
+			vis.select('#lineGroup').append('svg:path')
+				.attr('d', lineGen(data))
+				.attr('stroke', lineColor)
+				.attr('stroke-width', 2)
+				.attr('fill', 'none');
+				
+
+		}
+		
+		var pieSvg = d3.select("#pieDiv").append("svg")
+			.attr("width", 90)
+			.attr("height", 90)
+			.style('visibility','hidden')			
+		.append("g");
+
+		
+		function makePieChart(occ1) {
+
+			occupancy = occupancyScale(occ1);
+			d3.format(occupancy, 2)
+
+			available = 100 - occupancy;
+
+			data_to_visualize = [occupancy, available]
+			strings = ['Occ', 'Av']
+			if (arcs != null)
+				arcs.remove();
+
+			arc = d3.svg.arc()
+				.outerRadius(40)
+				.innerRadius(0);
+
+			pie = d3.layout.pie();
+			color_occupancy = ["#aba4a4", "#E86850"];
+
+			arcs = pieSvg.selectAll("g.arc")
+				.data(pie(data_to_visualize))
+				.enter()
+				.append("g").attr("transform", "translate(40,41)").attr("class", "arc");
+			arcs.append("path")
+				.attr("fill", function(d, i) {
+					return color_occupancy[i];
+				})
+				.attr("d", arc);
+			arcs.append("text")
+				.attr("transform", function(d) {
+					return "translate(" + arc.centroid(d) + ")";
+				})
+				.attr("dy", ".35em")
+				.style("text-anchor", "middle")
+				.style("font-size", "11px")
+				.text(function(d) {
+					var v = d.value;
+					return d3.round(v, 2) + "%";
+				});
+
+
+		}
+		var ids=[];
+		function populateMap() {
+			var point = null;
+			var highwayName = optionsHighway[0][selectHighway.property('selectedIndex')].__data__;
+			var month = optionsMonth[0][selectMonth.property('selectedIndex')].__data__;
+			var centerPoint;
+			document.getElementById('lineGroup').innerHTML = "";
+			if (circles != null) {
+				map.removeLayer(circles);
+			}
+
+			if (markers != null) {
+				map.removeLayer(markers);
+			}
+			circles = new L.FeatureGroup();
+			markers = new L.FeatureGroup();
+			
+			for (sensorID in jsonRead) {
+				sensorDict = jsonRead[sensorID];
+
+				if (typeof sensorDict.highway === 'undefined' || highwayName !== sensorDict.highway) {
+					continue;
+				}
+				vol = sensorDict.params[month].vol;
+
+				if (vol == 0)
+					continue;
+
+				speed = sensorDict.params[month].speed;
+				if (speed == 0)
+					continue;
+
+				occ1 = sensorDict.params[month].occ;
+				
+				//	makePieChart(occ1);
+
+				radius = speedRange(vol);
+				color = colorScale(speed);
+
+				point = [sensorDict.coordinates[1], sensorDict.coordinates[0]];
+
+				centerPoint = L.circle(point, radius, {
+					color: color,
+					fillColor: color,
+					fillOpacity: 0.6,
+					
+				}).addTo(circles);
+								
+				s =centerPoint._leaflet_id;
+				
+				m=s + "_" + sensorID;
+				
+				ids.push({s:m});
+				
+				centerPoint.on('click', function(e) {
+					document.getElementById('lineGroup').innerHTML = "";
+					x = findSensorID(this._leaflet_id);
+					showGraph(x, month);
+					console.log(x);
+				});
+				centerPoint.bindPopup("<u>" + "Volume:" + "</u>" + " " + d3.round(sensorDict.params[month].vol, 2) + "<br>" + "<u>" + "Speed (mph):" + "</u>" + " " + d3.round(sensorDict.params[month].speed, 2));
+				centerPoint.on('mouseover', function(e) {
+					this.openPopup();
+				});
+				centerPoint.on('mouseout', function(e) {
+					this.closePopup();
+				});
+			}
+			function findSensorID(leafletID)
+			{
+				for(i = 0; i < ids.length; i++)
+				{
+					p = ids[i].s;
+					kk = p.split("_");
+					lid = kk[0];
+					sid = kk[1];
+					if(lid == leafletID)
+						return sid;
+				}
+				return null;
+			}
+			if(typeof occ1 !== 'undefined' || occ1 != null)
+			{
+				makePieChart(occ1);
+			}
+
+			m = L.marker(point, {
+				icon: myIcon
+			}).bindPopup("<b>" + "&nbsp" + "&nbsp" + "&nbsp" + "Freeway: " + highwayName + "</b>" + "<br >" + "<br >" + "<svg width='90' height='90'>" + pieSvg.html() + "</svg>" + "<br>" + "&nbsp" + "&nbsp" + "&nbsp" + 'Aggregated' + '<br>' + "&nbsp" + "&nbsp" + ' Occupancy').addTo(markers);
+
+			circles.addTo(map);
+			map.fitBounds(circles.getBounds());
+			markers.addTo(map);
+
+		}
+
+		function showGraph(sensorID, month)
+		{
+			//console.log(lineJson[sensorID]);
+			jsonToPlot = lineJson[sensorID][month];
+			console.log(sensorID, jsonToPlot);
+			colors = ['brown', 'green', 'orange'];
+			days = {
+				"01": ["06", "10", "12"],
+				"02": ["03", "07", "09"],
+				"03": ["03", "07", "09"]
+			};
+		
+			
+			for (i = 0; i < 2; i++) {
+				day = days[month][i];
+				DrawGraph(jsonToPlot[day], colors[i], sensorID);
+			}
+		}
+
+
+		function mouseDrag() {
+			var size = 20;
+			var rectangle = [];
+			rectangle.push([map.getBounds()._northEast.lat, map.getBounds()._northEast.lng])
+			rectangle.push([map.getBounds()._northEast.lat, map.getBounds()._southWest.lng])
+			rectangle.push([map.getBounds()._southWest.lat, map.getBounds()._southWest.lng])
+			rectangle.push([map.getBounds()._southWest.lat, map.getBounds()._northEast.lng])
+
+			scaleLat.domain([map.getBounds()._northEast.lat, map.getBounds()._southWest.lat])
+				.range([size * 4, size * 7]);
+
+			scaleLng.domain([map.getBounds()._southWest.lng, map.getBounds()._northEast.lng])
+				.range([0, 750]);
+
+		}
+
+		mouseDrag();
+		d3.selectAll(".tick > text")
+			.style("font-family", "serif");
+    </script>
+
+	</body>
+
+
+</html>

@@ -1,0 +1,27 @@
+\begin{thebibliography}{1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+
+\bibitem{d3website}
+Bostock, M.: d3.js, \url{http://d3js.org/}
+
+\bibitem{Cairo2012}
+Cairo, A.: The Functional Art: An Introduction to Information Graphics and
+  Visualization. New Riders (2012)
+
+\bibitem{leafletwebsite}
+Leaflet: Leaflet, \url{http://leafletjs.com/}
+
+\bibitem{MichaelBostock2011}
+Michael~Bostock, V.O., Heer, J.: D3: Data-driven documents (2011)
+
+\bibitem{Murray2013}
+Murray, S.: Interactive Data Visualization for the Web. O'Reilly Media (2013)
+
+\bibitem{Ware2008}
+Ware, C.: Visual Thinking for Design. Morgan Kaufmann (2008)
+
+\bibitem{inductionloopwiki}
+Wikipedia: Induction loop, \url{http://goo.gl/a0bkhh}
+
+\end{thebibliography}

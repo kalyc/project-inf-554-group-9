@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Los Angeles Traffic</title>
+    <meta charset="utf-8" />
+    <script src="../js/leaflet/leaflet.js"></script>
+    <script src="../js/d3.min.js"></script>
+    <script src="http://sashakavun.github.io/leaflet-canvasicon/leaflet-canvasicon.js"></script>
+    <script type="text/javascript" src="../js/leaflet-piechart.js"></script>
+    <style>
+        @import url('../js/leaflet/leaflet.css');
+        div.tooltip {
+            position: absolute;
+            text-align: center;
+            width: 45px;
+            height: 28px;
+            padding: 2px;
+            font: 12px sans-serif;
+            background: lightgray;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+    </style>
+    <h1> Los Angeles Traffic Map </h1>
+</head>
+
+
+<body>
+    Select highway
+    <select id="selectHighway"></select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Select month
+    <select id="selectMonth"></select>&nbsp;&nbsp;&nbsp;&nbsp;
+    <input type="button" id="btnPopulateMap" value="Search" />
+
+    <input type="checkbox" name="Occupancy" value="occ" id="occ_check">Occupancy
+    <input type="checkbox" name="Line Chart" value="line" id="line_check">Line Chart
+    <br>
+
+    <br />
+    <div id="map" style="width: 960px; height: 600px"></div>
+    </script>
+    <svg id="svg_donut" width="500" height="500"></svg>
+    <script>
+        var div = d3.select("body").append("div")
+            .attr("class", "tooltip")
+            .style("opacity", 0).style("background-color", "#ffffff");
+
+        var json = null;
+
+
+        d3.json("../json/sensor_data2.json", function(error, jsonRead) {
+            if (error) {
+                alert(error);
+                return;
+            }
+            json = jsonRead;
+        });
+
+        latPoint = 34.0946;
+        longPoint = -118.2428;
+		
+		
+		
+        var map = L.map('map', {
+            center: [latPoint, longPoint],
+            zoom: 9,
+            maxZoom: 13
+        });
+		
+        //var toolserver = L.tileLayer('http://{s}.www.toolserver.org/tiles/bw-mapnik/{z}/{x}/{y}.png');
+        var stamen = L.tileLayer('http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png', {
+            attribution: 'Add some attributes here!'
+        }).addTo(map);
+        //var baseLayers = {"stamen": stamen};
+        //L.control.layers(baseLayers).addTo(map);
+
+
+        highways = ["5", "10", "15", "22", "39", "55", "57", "60", "71", "73", "74", "91", "133", "142", "210", "215",
+            "241", "259", "261", "405", "605", "I-10", "I-105", "I-110", "I-210", "I-405", "I-5", "I-605", "I-710", "SR-101",
+            "SR-118", "SR-126", "SR-134", "SR-14", "SR-170", "SR-2", "SR-23", "SR-33", "SR-47", "SR-57", "SR-60", "SR-71",
+            "SR-90", "SR-91"
+        ];
+
+        //['I-10', 'I-5'];
+
+        //	 var higways_location={};
+        //highways_location={"5":"-117.86918, 33.770044", "I-10": "-117.8743, 34.071895"};
+        months = ['01', '02', '03'];
+
+        var selectHighway = d3.select('#selectHighway');
+        optionsHighway = selectHighway.selectAll('option').data(highways);
+        optionsHighway.enter().append("option").text(function(d) {
+            return d;
+        });
+
+        var selectMonth = d3.select('#selectMonth');
+        optionsMonth = selectMonth.selectAll('option').data(months);
+        optionsMonth.enter().append("option").text(function(d) {
+            return d;
+        });
+
+        var btnPopulateMap = d3.select('#btnPopulateMap').on('click', populateMap);
+
+        var circles = null;
+        var markers = null;
+        var pieChart = null;
+        var speedRange = d3.scale
+            .linear()
+            .domain([0, 15])
+            .range([10, 500]);
+
+        //colors = ['red','blue'];
+        colors = ["#1f77b4", "#ff7f0e"];
+        var colorScale = d3.scale
+            .ordinal()
+            .domain([30, 80])
+            .range(colors);
+        var occupancyScale = d3.scale.linear().domain([0, 10]).range([8, 100])
+        var occ1;
+        var data_to_visualize = [];
+	
+	var tooltip = d3.select("body")
+    .append("div")
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("visibility", "hidden")
+    .text("a simple tooltip");
+
+        var myIcon = L.icon({
+            iconUrl: 'img/black1.png',
+            iconSize: [50, 50],
+            iconAnchor: [1, 38],
+            popupAnchor: [25, -18],
+            
+        });
+        var svg = d3.select("body").append("svg")
+            .attr("width", 300)
+            .attr("height", 300)
+            .append("g");
+
+        var arcs, pie, arc;		
+        function makePieChart(occ1) {
+			occupancy = occupancyScale(occ1);
+            d3.format(occupancy, 2)
+
+            console.log(occupancy);
+            available = 100 - occupancy;
+
+            data_to_visualize = [occupancy, available]
+
+            arc = d3.svg.arc()
+                .outerRadius(24)
+                .innerRadius(0);
+
+            pie = d3.layout.pie()
+            color_occupancy = ["#FA6121", "#FFB739"]
+
+            arcs = svg.selectAll("g.arc")
+                .data(pie(data_to_visualize))
+                .enter()
+                .append("g").attr("transform", "translate(40,24)").attr("class", "arc");
+            arcs.append("path")
+                .attr("fill", function(d, i) {
+                    return color_occupancy[i];
+                })
+                .attr("d", arc);
+				
+        }
+
+        function populateMap() {
+            var point = null;
+            var highwayName = optionsHighway[0][selectHighway.property('selectedIndex')].__data__;
+            var month = optionsMonth[0][selectMonth.property('selectedIndex')].__data__;
+          
+            if (circles != null) {
+                map.removeLayer(circles);
+            }
+
+            if (markers != null) {
+                map.removeLayer(markers);
+            }
+
+            circles = new L.FeatureGroup();
+            markers = new L.FeatureGroup();
+          pie_marks=new L.FeatureGroup();
+            for (sensorID in json) {
+                sensorDict = json[sensorID];
+
+                if (typeof sensorDict.highway === 'undefined' || highwayName !== sensorDict.highway) {
+                    continue;
+                }
+                vol = sensorDict.params[month].vol;
+
+                if (vol == 0)
+                    continue;
+
+                speed = sensorDict.params[month].speed;
+                if (speed == 0)
+                    continue;
+
+                occ1 = sensorDict.params[month].occ;
+                
+			//	makePieChart(occ1);
+			var marker= L.piechartMarker(
+								L.latLng([ sensorDict.coordinates[1],sensorDict.coordinates[0]]),
+							{
+								data: [
+									{ name: 'Occupancy', value: sensorDict.params[month].occ*10 },
+									{ name: 'Not Occupied', value: 100- sensorDict.params[month].occ*10 }
+
+								]
+							}
+							).addTo(pie_marks);
+				
+				radius = speedRange(vol);
+                color = colorScale(speed);
+
+                point = [sensorDict.coordinates[1], sensorDict.coordinates[0]];
+
+                var centerPoint = L.circle(point, radius, {
+                    color: color,
+                    fillColor: color,
+                    fillOpacity: 0.6
+                }).addTo(circles);
+
+				
+
+                centerPoint.bindPopup("Volume: " + d3.round(sensorDict.params[month].vol, 2) + "\n" + "Speed: " + d3.round(sensorDict.params[month].speed, 2));
+                centerPoint.on('mouseover', function(e) {
+                    this.openPopup();
+					pie_marks.addTo(map);
+                });
+                centerPoint.on('mouseout', function(e) {
+                    this.closePopup();
+					map.removeLayer(pie_marks);
+                });
+
+            }
+
+            m = L.marker(point, {
+                icon: myIcon
+            }).bindPopup(highwayName).addTo(markers);
+           
+            circles.addTo(map);
+            map.fitBounds(circles.getBounds());
+            markers.addTo(map);
+	       }
+		   
+
+
+
+        map.on("viewreset", mouseDrag);
+        map.on("drag", mouseDrag);
+
+        var scaleLat = d3.scale.linear();
+        var scaleLng = d3.scale.linear();
+
+        function mouseDrag() {
+            var size = 20;
+            var rectangle = [];
+            rectangle.push([map.getBounds()._northEast.lat, map.getBounds()._northEast.lng])
+            rectangle.push([map.getBounds()._northEast.lat, map.getBounds()._southWest.lng])
+            rectangle.push([map.getBounds()._southWest.lat, map.getBounds()._southWest.lng])
+            rectangle.push([map.getBounds()._southWest.lat, map.getBounds()._northEast.lng])
+
+            scaleLat.domain([map.getBounds()._northEast.lat, map.getBounds()._southWest.lat])
+                .range([size * 4, size * 7]);
+
+            scaleLng.domain([map.getBounds()._southWest.lng, map.getBounds()._northEast.lng])
+                .range([0, 750]);
+
+        }
+
+        mouseDrag();
+    </script>
+</body>
+
+</html>
